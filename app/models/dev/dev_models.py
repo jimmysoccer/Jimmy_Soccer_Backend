@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Double, Date
+from sqlalchemy import Column, Integer, String, Float, Date
 
 from ...database import Base
 
@@ -10,4 +10,4 @@ class DevModel(Base):
     first_name = Column(String)
     last_name = Column(String)
     birth_date = Column(Date)
-    salary = Column(Double)
+    salary = Column(Float)
