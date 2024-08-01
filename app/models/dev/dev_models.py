@@ -7,7 +7,7 @@ class DevModel(Base):
     __tablename__ = "dev"
 
     id = Column(Integer, primary_key=True)
-    first_name = Column(String)
-    last_name = Column(String)
-    birth_date = Column(Date)
+    firstname = Column(String)
+    lastname  = Column(String)
+    birthdate  = Column(Date)
     salary = Column(Float)
