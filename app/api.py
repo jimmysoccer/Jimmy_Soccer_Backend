@@ -10,9 +10,9 @@ from fastapi.responses import FileResponse
 app = FastAPI(openapi_url="/api/openapi.json",
               docs_url="/api/docs", redoc_url=None)
 
-origins = ['*']
+origins = ['*','https://www.sh-haimin.cn']
 
-Image_Dir = 'static/images'
+Image_Dir = '/home/ubuntu/backend/static/images'
 
 
 @app.on_event('startup')
@@ -31,14 +31,12 @@ app.add_middleware(
 )
 
 
-@app.get('/{image_name}')
+@app.get('/api/{image_name}')
 async def get_image(image_name: str):
     # Construct the full path to the image
     file_path = os.path.join(Image_Dir, image_name)
-
     # Check if the file exists
     if not os.path.isfile(file_path):
         return {"error": "File not found"}
-
     # Return the image file
     return FileResponse(file_path)

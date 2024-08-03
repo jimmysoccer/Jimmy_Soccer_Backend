@@ -34,7 +34,7 @@ async def get_projects():
 
         for project in projects:
             image_names = project.images.split(',')
-            base_url = 'http://localhost:8000/'
+            base_url = 'https://www.sh-haimin.cn/api/'
             image_urls = [base_url+image_name for image_name in image_names]
             project.images = image_urls
 
