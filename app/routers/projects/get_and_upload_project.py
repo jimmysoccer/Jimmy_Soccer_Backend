@@ -33,10 +33,13 @@ async def get_projects():
         projects = session.query(Project).all()
 
         for project in projects:
-            image_names = project.images.split(',')
-            base_url = 'https://www.sh-haimin.cn/api/'
-            image_urls = [base_url+image_name for image_name in image_names]
-            project.images = image_urls
+            if project.images=='':
+                project.images = []
+            else:
+                image_names = project.images.split(',')
+                base_url = 'https://www.sh-haimin.cn/api/'
+                image_urls = [base_url+image_name for image_name in image_names]
+                project.images = image_urls
 
         # Return success message
         return {
@@ -53,10 +56,49 @@ async def get_projects():
         session.close()
 
 
+@projects_router.post('/edit_project')
+async def edit_projects(project:ProjectModel):
+    try:
+        id = project.id
+        session = create_session()
+        db_project = session.query(Project).filter(Project.id == id).first()
+
+        if project is None:
+            return {'status_code': 404}
+
+        db_project.title=project.title
+        db_project.place = project.place
+        db_project.start_date=project.start_date
+        db_project.end_date = project.end_date
+        db_project.description=project.description
+
+        if project.images != '':
+            if db_project.images=='':
+                db_project.images+=project.images
+            else:
+                db_project.images+=','+project.images
+
+        session.commit()
+        session.refresh(db_project)
+
+        # Return success message
+        return {
+            'status_code': 200,
+            "message": 'successfully edit record',
+            'project':db_project
+        }
+
+    except SQLAlchemyError as e:
+        # Handle any errors
+        session.rollback()
+        print(f"Error occurred: {e}")
+
+    finally:
+        session.close()
+
+
 class DeleteModel(BaseModel):
     id: int
-
-
 @projects_router.post('/delete_project')
 async def delete_projects(delete: DeleteModel):
     try:

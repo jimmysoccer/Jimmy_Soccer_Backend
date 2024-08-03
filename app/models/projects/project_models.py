@@ -2,9 +2,11 @@ from sqlalchemy import Column, Integer, String, Date, Text
 from datetime import datetime
 from pydantic import BaseModel
 from ...database import Base
+from typing import Optional
 
 
 class ProjectModel(BaseModel):
+    id:Optional[int] = None
     title: str
     place: str
     start_date: datetime
