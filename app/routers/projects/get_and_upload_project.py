@@ -8,8 +8,10 @@ from pydantic import BaseModel
 @projects_router.post('/upload_project')
 async def upload_project(project: ProjectModel):
     session = create_session()
-    payload = Project(title=project.title, place=project.place, start_date=project.start_date,
-                      end_date=project.end_date, description=project.description, images=project.images)
+    payload = Project(title=project.title, place=project.place,
+                      start_date=project.start_date,
+                      end_date=project.end_date, description=project.description,
+                      images=project.images, videos=project.videos)
     try:
         session.add(payload)
         session.commit()
@@ -33,13 +35,23 @@ async def get_projects():
         projects = session.query(Project).all()
 
         for project in projects:
-            if project.images=='':
+            if project.images == '':
                 project.images = []
             else:
                 image_names = project.images.split(',')
-                base_url = 'https://www.sh-haimin.cn/api/'
-                image_urls = [base_url+image_name for image_name in image_names]
+                base_url = 'https://www.sh-haimin.cn/api/images/'
+                image_urls = [
+                    base_url+image_name for image_name in image_names]
                 project.images = image_urls
+
+            if project.videos == '' or project.videos is None:
+                project.videos = []
+            else:
+                video_names = project.videos.split(',')
+                base_url = 'https://www.sh-haimin.cn/api/videos/'
+                video_urls = [
+                    base_url+video_name for video_name in video_names]
+                project.videos = video_urls
 
         # Return success message
         return {
@@ -57,7 +69,7 @@ async def get_projects():
 
 
 @projects_router.post('/edit_project')
-async def edit_projects(project:ProjectModel):
+async def edit_projects(project: ProjectModel):
     try:
         id = project.id
         session = create_session()
@@ -66,17 +78,23 @@ async def edit_projects(project:ProjectModel):
         if project is None:
             return {'status_code': 404}
 
-        db_project.title=project.title
+        db_project.title = project.title
         db_project.place = project.place
-        db_project.start_date=project.start_date
+        db_project.start_date = project.start_date
         db_project.end_date = project.end_date
-        db_project.description=project.description
+        db_project.description = project.description
 
-        if project.images != '':
-            if db_project.images=='':
-                db_project.images+=project.images
+        if len(project.images) != 0:
+            if db_project.images == '':
+                db_project.images += project.images
             else:
-                db_project.images+=','+project.images
+                db_project.images += ','+project.images
+
+        if len(project.videos) != 0:
+            if db_project.videos == '':
+                db_project.videos += project.videos
+            else:
+                db_project.videos += ','+project.videos
 
         session.commit()
         session.refresh(db_project)
@@ -85,7 +103,7 @@ async def edit_projects(project:ProjectModel):
         return {
             'status_code': 200,
             "message": 'successfully edit record',
-            'project':db_project
+            'project': db_project
         }
 
     except SQLAlchemyError as e:
@@ -99,6 +117,8 @@ async def edit_projects(project:ProjectModel):
 
 class DeleteModel(BaseModel):
     id: int
+
+
 @projects_router.post('/delete_project')
 async def delete_projects(delete: DeleteModel):
     try:
