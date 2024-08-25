@@ -13,3 +13,7 @@ static/
 
 # Process management
 nohup.out
+
+# Others
+fastapi.*
+.fastapi.*

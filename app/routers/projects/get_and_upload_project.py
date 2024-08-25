@@ -83,18 +83,8 @@ async def edit_projects(project: ProjectModel):
         db_project.start_date = project.start_date
         db_project.end_date = project.end_date
         db_project.description = project.description
-
-        if len(project.images) != 0:
-            if db_project.images == '':
-                db_project.images += project.images
-            else:
-                db_project.images += ','+project.images
-
-        if len(project.videos) != 0:
-            if db_project.videos == '':
-                db_project.videos += project.videos
-            else:
-                db_project.videos += ','+project.videos
+        db_project.images = project.images
+        db_project.videos = project.videos
 
         session.commit()
         session.refresh(db_project)
